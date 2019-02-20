@@ -74,7 +74,7 @@ func (s *security) GetUser(c *gin.Context) (*user.User, error) {
 		return nil, err
 	}
 	claims := token.Claims.(jwt.MapClaims)
-	fmt.Printf("%T", claims["uid"])
+
 	u := (&user.User{}).Fill(claims)
 	return u, err
 }
