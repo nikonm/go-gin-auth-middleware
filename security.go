@@ -18,10 +18,10 @@ import (
 var Security *security
 
 type Options struct {
-	Secret       string
-	TokenExp     string
-	HeaderName   string
-	PasswordAlgo string
+	Secret       string `json:"secret"`
+	TokenExp     string `json:"token_exp"`
+	HeaderName   string `json:"header_name"`
+	PasswordAlgo string `json:"password_algo"`
 
 	Adapters map[string]map[string]interface{} //[type]provider
 }
