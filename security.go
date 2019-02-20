@@ -19,7 +19,7 @@ var Security *security
 
 type Options struct {
 	Secret       string
-	TokenExp     time.Duration
+	TokenExp     string
 	HeaderName   string
 	PasswordAlgo string
 
@@ -123,12 +123,13 @@ func (s *security) getAdapterKey(adapter *adapters.Adapter) string {
 
 func (s *security) makeToken(user *user.User) string {
 	token := jwt.New(jwt.SigningMethodHS256)
+	tokenExp, _ := time.ParseDuration(s.Options.TokenExp)
 	token.Claims = jwt.MapClaims{
 		"uid":  user.Id,
 		"role": user.Role,
 		"user": user.User,
 		"type": user.Type,
-		"exp":  time.Now().Add(s.Options.TokenExp).Unix(),
+		"exp":  time.Now().Add(tokenExp).Unix(),
 	}
 
 	tokenString, _ := token.SignedString([]byte(s.Options.Secret))

@@ -13,7 +13,7 @@ func initSecurity(t *testing.T) {
 		PasswordAlgo: "sha1",
 		Adapters:     make(map[string]map[string]interface{}),
 		HeaderName:   "AUTH",
-		TokenExp:     3600,
+		TokenExp:     "30m",
 	}
 	err := Init(options)
 	if err != nil {
