@@ -11,7 +11,7 @@ type LoginDTO struct {
 	User         string
 	Password     string
 	Type         string
-	PasswordHash string
+	PasswordHash string `json:"-"`
 }
 
 type User struct {
