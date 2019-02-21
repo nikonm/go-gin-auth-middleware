@@ -12,6 +12,7 @@ import (
 	"hash"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -54,9 +55,13 @@ func (s *security) CheckRoleAuth(roles ...string) gin.HandlerFunc {
 			return
 		}
 		var in bool
+	RolesLoop:
 		for _, r := range roles {
-			if r == u.Role {
-				in = true
+			for _, ur := range u.Roles {
+				if r == ur {
+					in = true
+					break RolesLoop
+				}
 			}
 		}
 		if !in {
@@ -145,7 +150,7 @@ func (s *security) makeToken(user *user.User) string {
 	tokenExp, _ := time.ParseDuration(s.Options.TokenExp)
 	token.Claims = jwt.MapClaims{
 		"uid":  user.Id,
-		"role": user.Role,
+		"role": strings.Join(user.Roles, ","),
 		"user": user.User,
 		"type": user.Type,
 		"exp":  time.Now().Add(tokenExp).Unix(),

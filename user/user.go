@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"reflect"
 	"strconv"
+	"strings"
 )
 
 type LoginDTO struct {
@@ -19,7 +21,7 @@ type User struct {
 	User  string
 	Login string
 	Email string
-	Role  string
+	Roles []string
 	Type  string
 }
 
@@ -28,19 +30,14 @@ func (u *User) Fill(claims jwt.MapClaims) *User {
 		switch k {
 		case "uid":
 			u.Id = int(v.(float64))
-			break
 		case "role":
-			u.Role = v.(string)
-			break
+			u.Roles = strings.Split(v.(string), ",")
 		case "user":
 			u.User = v.(string)
-			break
 		case "login":
 			u.Login = v.(string)
-			break
 		case "email":
 			u.Email = v.(string)
-			break
 		}
 	}
 	return u
@@ -59,19 +56,18 @@ func (u *User) FillFromSource(fromSource map[string]interface{}, mapping map[str
 		switch targetField {
 		case "id":
 			u.Id, err = strconv.Atoi(v)
-			break
-		case "role":
-			u.Role = v
-			break
+		case "roles":
+			if reflect.TypeOf(val).Kind() == reflect.Slice {
+				u.Roles = val.([]string)
+				break
+			}
+			u.Roles = []string{v}
 		case "user":
 			u.User = v
-			break
 		case "login":
 			u.Login = v
-			break
 		case "email":
 			u.Email = v
-			break
 		}
 	}
 

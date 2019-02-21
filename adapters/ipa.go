@@ -67,6 +67,7 @@ func (i *IpaProvider) Login(dto user.LoginDTO) (*user.User, error) {
 	res["login"] = userInfo.Uid.String()
 	res["username"] = userInfo.DisplayName.String()
 	res["email"] = userInfo.Email.String()
+	res["roles"] = userInfo.Groups
 
 	return (&user.User{}).FillFromSource(res, i.config["source_target_fields"].(map[string]interface{}))
 }

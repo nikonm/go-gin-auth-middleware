@@ -33,7 +33,7 @@ func TestSecurity_PwdHash(t *testing.T) {
 
 func TestSecurity_GetUser(t *testing.T) {
 	initSecurity(t)
-	u := &user.User{Id: 41, Login: "test", Email: "test@test.local", User: "Name", Role: "role"}
+	u := &user.User{Id: 41, Login: "test", Email: "test@test.local", User: "Name", Roles: []string{"role"}}
 
 	token := Security.makeToken(u)
 
@@ -54,7 +54,7 @@ func TestSecurity_GetUser(t *testing.T) {
 
 func TestSecurity_CheckRoleAuth(t *testing.T) {
 	initSecurity(t)
-	u := &user.User{Id: 41, Login: "test", Email: "test@test.local", User: "Name", Role: "admin"}
+	u := &user.User{Id: 41, Login: "test", Email: "test@test.local", User: "Name", Roles: []string{"admin"}}
 
 	token := Security.makeToken(u)
 
