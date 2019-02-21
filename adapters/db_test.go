@@ -15,7 +15,7 @@ func getDBMock(t *testing.T) *sql.DB {
 	rows := sqlmock.NewRows([]string{
 		"id", "username", "email"}).
 		AddRow("1", "test", "test@test.local")
-	mock.ExpectQuery("SELECT id, username, email FROM users").WithArgs("test", "test").WillReturnRows(rows)
+	mock.ExpectQuery("SELECT (.*) FROM users where username=\\? and password=\\?").WithArgs("test", "test").WillReturnRows(rows)
 
 	return db
 }
@@ -27,7 +27,7 @@ func getDbProvider(t *testing.T) DBProvider {
 	config := map[string]interface{}{
 		"driver":     "postgres",
 		"connection": "postgres://user:pass@localhost/test",
-		"sql":        "SELECT {select_columns} FROM users where username=$1 and password=$2",
+		"sql":        "SELECT {select_columns} FROM users where username=? and password=?",
 		"source_target_fields": map[string]interface{}{
 			"id":       "id",
 			"username": "user",
@@ -46,7 +46,7 @@ func TestDBProvider_Login(t *testing.T) {
 	dto := user.LoginDTO{User: "test", Password: "test", Type: "db"}
 	dto.PasswordHash = "test"
 	u, err := p.Login(dto)
-	t.Log(u, err)
+	//t.Log(u, err)
 	if u == nil {
 		t.Fail()
 	}

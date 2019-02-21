@@ -48,7 +48,7 @@ func TestIpaProvider_Login(t *testing.T) {
 	}
 	dto := user.LoginDTO{User: "test", Password: "test", Type: "ipa"}
 	u, err := p.Login(dto)
-	t.Log(u, err)
+
 	if u == nil {
 		t.Fail()
 	}

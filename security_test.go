@@ -1,9 +1,11 @@
 package security
 
 import (
+	"bytes"
 	"github.com/gin-gonic/gin"
 	"github.com/nikonm/go-gin-auth-middleware/user"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -35,16 +37,35 @@ func TestSecurity_GetUser(t *testing.T) {
 
 	token := Security.makeToken(u)
 
-	headers := http.Header{}
-	headers.Add("AUTH", token)
-	r := &http.Request{Header: headers}
-	c := &gin.Context{Request: r}
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request, _ = http.NewRequest("POST", "/", bytes.NewBufferString("{\"foo\":\"bar\", \"bar\":\"foo\"}"))
+	c.Request.Header.Add("AUTH", token)
+
 	securedUser, err := Security.GetUser(c)
 
 	if err != nil {
 		t.Fail()
 	}
 	if securedUser == nil {
+		t.Fail()
+	}
+}
+
+func TestSecurity_CheckRoleAuth(t *testing.T) {
+	initSecurity(t)
+	u := &user.User{Id: 41, Login: "test", Email: "test@test.local", User: "Name", Role: "admin"}
+
+	token := Security.makeToken(u)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request, _ = http.NewRequest("POST", "/", bytes.NewBufferString("{\"foo\":\"bar\", \"bar\":\"foo\"}"))
+	c.Request.Header.Add("AUTH", token)
+
+	Security.CheckRoleAuth("user")(c)
+
+	if !c.IsAborted() {
 		t.Fail()
 	}
 }

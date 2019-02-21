@@ -42,18 +42,28 @@ type security struct {
 	Adapters map[string]*adapters.Adapter
 }
 
-func (s *security) Middleware(c *gin.Context) {
+func (s *security) CheckAuth(c *gin.Context) {
+	s.getToken(c)
+}
 
-	tokenKey := s.getTokenKey(c)
-	token, err := s.getToken(tokenKey)
+func (s *security) CheckRoleAuth(roles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		u, _ := s.GetUser(c)
 
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-	if !token.Valid {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-		return
+		if c.IsAborted() {
+			return
+		}
+		var in bool
+		for _, r := range roles {
+			if r == u.Role {
+				in = true
+			}
+		}
+		if !in {
+			fmt.Println(c.Writer)
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "You don't have permission"})
+			return
+		}
 	}
 }
 
@@ -61,15 +71,24 @@ func (s *security) getTokenKey(c *gin.Context) string {
 	return c.Request.Header.Get(s.Options.HeaderName)
 }
 
-func (s *security) getToken(tokenKey string) (*jwt.Token, error) {
-	return jwt.Parse(tokenKey, func(token *jwt.Token) (interface{}, error) {
+func (s *security) getToken(c *gin.Context) (*jwt.Token, error) {
+	tokenKey := s.getTokenKey(c)
+	token, err := jwt.Parse(tokenKey, func(token *jwt.Token) (interface{}, error) {
 		return []byte(s.Options.Secret), nil
 	})
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return nil, err
+	}
+	if !token.Valid {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return token, err
+	}
+	return token, nil
 }
 
 func (s *security) GetUser(c *gin.Context) (*user.User, error) {
-	tokenKey := s.getTokenKey(c)
-	token, err := s.getToken(tokenKey)
+	token, err := s.getToken(c)
 	if err != nil {
 		return nil, err
 	}
