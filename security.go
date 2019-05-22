@@ -50,6 +50,7 @@ func (s *security) CheckAuth(c *gin.Context) {
 func (s *security) CheckRoleAuth(roles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		u, _ := s.GetUser(c)
+		c.Set("SecuredUser", u)
 
 		if c.IsAborted() {
 			return
