@@ -150,11 +150,12 @@ func (s *security) makeToken(user *user.User) string {
 	token := jwt.New(jwt.SigningMethodHS256)
 	tokenExp, _ := time.ParseDuration(s.Options.TokenExp)
 	token.Claims = jwt.MapClaims{
-		"uid":  user.Id,
-		"role": strings.Join(user.Roles, ","),
-		"user": user.User,
-		"type": user.Type,
-		"exp":  time.Now().Add(tokenExp).Unix(),
+		"uid":   user.Id,
+		"role":  strings.Join(user.Roles, ","),
+		"user":  user.User,
+		"email": user.Email,
+		"type":  user.Type,
+		"exp":   time.Now().Add(tokenExp).Unix(),
 	}
 
 	tokenString, _ := token.SignedString([]byte(s.Options.Secret))
